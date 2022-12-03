@@ -2,7 +2,7 @@ use std::fs;
 use anyhow::{Result, Ok};
 
 fn main() -> Result<()> {
-    let input = fs::read_to_string("./input.txt")?;
+    let input = fs::read_to_string("./day1_input.txt")?;
     let mut floor = 0;
     let mut basement_enter_character_position: Option<usize> = None;
     let mut is_basement_character_found = false;
