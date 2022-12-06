@@ -28,13 +28,11 @@ fn calculate_amount_of_present_paper(sizes: &PresentSizes) -> usize {
     let PresentSizes {
         values: [length, width, height],
     } = sizes;
-    if let Some(v) = [length * width, width * height, height * length]
-        .iter()
-        .min()
-    {
-        return (2 * length * width + 2 * width * height + 2 * height * length) + v;
-    };
-    return 0;
+
+    let sides = [length * width, width * height, height * length];
+    let min_size = sides.iter().min().expect("min side was not found");
+
+    return (2 * sides[0] + 2 * sides[1] + 2 * sides[2]) + min_size;
 }
 
 fn calculate_ribbon(sizes: &PresentSizes) -> usize {
@@ -54,7 +52,7 @@ fn calculate_ribbon(sizes: &PresentSizes) -> usize {
 fn main() -> Result<()> {
     let required_paper = fs::read_to_string("./day2_input.txt")?
         .lines()
-        .map(|v| PresentSizes::from_str(v))
+        .map(|v| v.parse::<PresentSizes>())
         .flatten()
         .fold((0, 0), |init, v| {
             (
