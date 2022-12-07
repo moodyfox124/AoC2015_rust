@@ -36,16 +36,15 @@ fn calculate_amount_of_present_paper(sizes: &PresentSizes) -> usize {
 }
 
 fn calculate_ribbon(sizes: &PresentSizes) -> usize {
-    let &PresentSizes {
-        values: [length, width, height],
-    } = sizes;
-    let bow = length * width * height;
-    let max = [length, width, height].iter().max().unwrap().to_owned();
-    let min_sides: Vec<usize> = [length, width, height]
-        .into_iter()
-        .filter(|v| v < &max)
-        .collect();
-    let wrap = min_sides.get(0).unwrap_or(&max) * 2 + min_sides.get(1).unwrap_or(&max) * 2;
+    let &PresentSizes { values } = sizes;
+
+    let bow = values.iter().fold(1, |prev, curr| curr * prev);
+
+    let mut sorted_arr = values.clone();
+    sorted_arr.sort();
+
+    let wrap = sorted_arr[0] * 2 + sorted_arr[1] * 2;
+
     return wrap + bow;
 }
 
