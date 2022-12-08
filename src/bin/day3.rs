@@ -1,7 +1,7 @@
-use std::fs;
+use anyhow::{self, Ok};
+use std::{fs, str::FromStr};
 
 #[derive(Debug)]
-
 struct VisitedHouse {
     house: (i32, i32),
     presents: usize,
@@ -14,60 +14,82 @@ struct VisitedLocations {
     current_position_robot: (i32, i32),
 }
 
+impl VisitedLocations {
+    fn new() -> Self {
+        Self {
+            locations: vec![VisitedHouse {
+                house: (0, 0),
+                presents: 2,
+            }],
+            current_position_santa: (0, 0),
+            current_position_robot: (0, 0),
+        }
+    }
+
+    fn amount_of_places_with_presents_at_least(&self, amount_of_presents: usize) -> usize {
+        return self
+            .locations
+            .iter()
+            .filter(|l| l.presents >= amount_of_presents)
+            .count();
+    }
+}
+
+impl FromStr for VisitedLocations {
+    type Err = anyhow::Error;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        let mut locations = VisitedLocations::new();
+        let mut is_santa = true;
+
+        for direction in s.chars() {
+            let starter_location = match is_santa {
+                true => &mut locations.current_position_santa,
+                false => &mut locations.current_position_robot,
+            };
+
+            let next_location = match direction {
+                '^' => (starter_location.0, starter_location.1 + 1),
+
+                'v' => (starter_location.0, starter_location.1 - 1),
+
+                '>' => (starter_location.0 + 1, starter_location.1),
+
+                '<' => (starter_location.0 - 1, starter_location.1),
+
+                _ => return Err(anyhow::Error::msg("provided unsupported direction")),
+            };
+
+            let previouslu_visited_location = locations
+                .locations
+                .iter_mut()
+                .find(|l| l.house == next_location);
+
+            match previouslu_visited_location {
+                None => locations.locations.push(VisitedHouse {
+                    house: next_location,
+                    presents: 1,
+                }),
+                Some(location) => location.presents += 1,
+            }
+
+            *starter_location = next_location;
+
+            is_santa = !is_santa;
+        }
+
+        Ok(locations)
+    }
+}
+
 fn main() {
-    let mut is_santa = true;
 
     let input = fs::read_to_string("./day3_input.txt").expect("missing input from day3_input.txt");
-    let mut list_of_visited_places = VisitedLocations {
-        locations: vec![VisitedHouse {
-            house: (0, 0),
-            presents: 2,
-        }],
-        current_position_santa: (0, 0),
-        current_position_robot: (0, 0),
-    };
-
-    input.chars().for_each(|direction| {
-        let mut last_visited_place = match is_santa {
-            true => list_of_visited_places.current_position_santa,
-            false => list_of_visited_places.current_position_robot,
-        };
-
-        last_visited_place = match direction {
-            '^' => (last_visited_place.0, last_visited_place.1 + 1),
-
-            'v' => (last_visited_place.0, last_visited_place.1 - 1),
-
-            '>' => (last_visited_place.0 + 1, last_visited_place.1),
-
-            '<' => (last_visited_place.0 - 1, last_visited_place.1),
-
-            _ => panic!("unsupported symbol"),
-        };
-
-        let visited_location = list_of_visited_places
-            .locations
-            .iter_mut()
-            .find(|v| v.house == last_visited_place);
-
-        match visited_location {
-            Some(location) => location.presents += 1,
-            None => list_of_visited_places.locations.push(VisitedHouse {
-                house: last_visited_place,
-                presents: 1,
-            }),
-        }
-
-        match is_santa {
-            true => list_of_visited_places.current_position_santa = last_visited_place,
-            false => list_of_visited_places.current_position_robot = last_visited_place,
-        }
-
-        is_santa = !is_santa;
-    });
+    
+    let list_of_visited_locations = input.parse::<VisitedLocations>().expect("Santa was correctly navigated");
 
     println!(
         "houses with at least 1 present: {}",
-        list_of_visited_places.locations.len()
-    );
+        list_of_visited_locations.amount_of_places_with_presents_at_least(1)
+    )
 }
