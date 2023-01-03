@@ -63,13 +63,15 @@ impl FromStr for Vec2 {
 
 #[derive(Debug)]
 struct Grid {
-    lights: Vec<[bool; 1000]>,
+    // lights: Vec<[bool; 1000]>,
+    lights: Vec<[usize; 1000]>,
 }
 
 impl Grid {
     fn new() -> Self {
         Self {
-            lights: vec![[false; 1000]; 1000],
+            // lights: vec![[false; 1000]; 1000],
+            lights: vec![[0; 1000]; 1000],
         }
     }
 
@@ -78,21 +80,26 @@ impl Grid {
             Operation::ON => {
                 for i in instruction.start.0..=instruction.end.0 {
                     for j in instruction.start.1..=instruction.end.1 {
-                        self.lights[i][j] = true;
+                        // self.lights[i][j] = true;
+                        self.lights[i][j] += 1;
                     }
                 }
             }
             Operation::OFF => {
                 for i in instruction.start.0..=instruction.end.0 {
                     for j in instruction.start.1..=instruction.end.1 {
-                        self.lights[i][j] = false;
+                        // self.lights[i][j] = false;
+                        if self.lights[i][j] >= 1 {
+                            self.lights[i][j] -= 1;
+                        }
                     }
                 }
             }
             Operation::TOOGLE => {
                 for i in instruction.start.0..=instruction.end.0 {
                     for j in instruction.start.1..=instruction.end.1 {
-                        self.lights[i][j] = !self.lights[i][j];
+                        // self.lights[i][j] = !self.lights[i][j];
+                        self.lights[i][j] += 2;
                     }
                 }
             }
@@ -109,15 +116,23 @@ fn main() {
         .iter()
         .for_each(|instruction| grid.operate(instruction));
 
-    let mut on_lights = 0;
+    // let mut on_lights = 0;
 
+    // for i in 0..1000 {
+    //     for j in 0..1000 {
+    //         if grid.lights[i][j] {
+    //             on_lights += 1;
+    //         }
+    //     }
+    // }
+
+    let mut power = 0;
     for i in 0..1000 {
         for j in 0..1000 {
-            if grid.lights[i][j] {
-                on_lights += 1;
-            }
+            power += grid.lights[i][j];
         }
     }
 
-    println!("turned on lights: {}", on_lights);
+    // println!("turned on lights: {}", on_lights);
+    println!("brightnes: {}", power);
 }
