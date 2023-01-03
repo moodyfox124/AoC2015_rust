@@ -7,8 +7,8 @@ struct Wishes {
     nice: usize,
 }
 
-const ALLOWED_VOWELS: &str = "aeiou";
-const DISALLOWED_STRINGS: [&str; 4] = ["ab", "cd", "pq", "xy"];
+// const ALLOWED_VOWELS: &str = "aeiou";
+// const DISALLOWED_STRINGS: [&str; 4] = ["ab", "cd", "pq", "xy"];
 
 impl FromStr for Wishes {
     type Err = anyhow::Error;
@@ -77,7 +77,7 @@ impl FromStr for Wishes {
                 let pair = format!("{}{}", c, next_c);
                 let str_to_check = &chars[index + 2..].iter().collect::<String>();
 
-                if str_to_check.len() == 0 {
+                if str_to_check.is_empty() {
                     wishes.naughty += 1;
                     continue 'lines_loop;
                 }
@@ -102,7 +102,7 @@ impl FromStr for Wishes {
             wishes.naughty += 1;
         }
 
-        return Ok(wishes);
+        Ok(wishes)
     }
 }
 

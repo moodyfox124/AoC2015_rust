@@ -1,4 +1,3 @@
-use anyhow;
 use anyhow::Result;
 use std::{fs, str::FromStr};
 
@@ -32,7 +31,7 @@ fn calculate_amount_of_present_paper(sizes: &PresentSizes) -> usize {
     let sides = [length * width, width * height, height * length];
     let min_size = sides.iter().min().expect("min side was not found");
 
-    return (2 * sides[0] + 2 * sides[1] + 2 * sides[2]) + min_size;
+    (2 * sides[0] + 2 * sides[1] + 2 * sides[2]) + min_size
 }
 
 fn calculate_ribbon(sizes: &PresentSizes) -> usize {
@@ -40,19 +39,18 @@ fn calculate_ribbon(sizes: &PresentSizes) -> usize {
 
     let bow = values.iter().fold(1, |prev, curr| curr * prev);
 
-    let mut sorted_arr = values.clone();
+    let mut sorted_arr = values;
     sorted_arr.sort();
 
     let wrap = sorted_arr[0] * 2 + sorted_arr[1] * 2;
 
-    return wrap + bow;
+    wrap + bow
 }
 
 fn main() -> Result<()> {
     let required_paper = fs::read_to_string("./day2_input.txt")?
         .lines()
-        .map(|v| v.parse::<PresentSizes>())
-        .flatten()
+        .flat_map(|v| v.parse::<PresentSizes>())
         .fold((0, 0), |init, v| {
             (
                 init.0 + calculate_amount_of_present_paper(&v),

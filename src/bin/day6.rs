@@ -1,11 +1,10 @@
-use anyhow;
 use std::str::FromStr;
 
 #[derive(Debug)]
 enum Operation {
-    TOOGLE,
-    ON,
-    OFF,
+    Toogle,
+    On,
+    Off,
 }
 
 #[derive(Debug)]
@@ -25,11 +24,11 @@ impl FromStr for Instruction {
         let instruction_and_start: Vec<&str> = raw_instructions[0].trim().split(' ').collect();
 
         let (operation, start_position): (Operation, Vec2) = match instruction_and_start.len() {
-            2 => (Operation::TOOGLE, instruction_and_start[1].parse()?),
+            2 => (Operation::Toogle, instruction_and_start[1].parse()?),
             3 => {
                 let operation = match instruction_and_start[1].trim() {
-                    "on" => Operation::ON,
-                    "off" => Operation::OFF,
+                    "on" => Operation::On,
+                    "off" => Operation::Off,
                     _ => return Err(anyhow::Error::msg("unexpected operation")),
                 };
                 (operation, instruction_and_start[2].parse()?)
@@ -77,7 +76,7 @@ impl Grid {
 
     fn operate(&mut self, instruction: &Instruction) {
         match instruction.operation {
-            Operation::ON => {
+            Operation::On => {
                 for i in instruction.start.0..=instruction.end.0 {
                     for j in instruction.start.1..=instruction.end.1 {
                         // self.lights[i][j] = true;
@@ -85,7 +84,7 @@ impl Grid {
                     }
                 }
             }
-            Operation::OFF => {
+            Operation::Off => {
                 for i in instruction.start.0..=instruction.end.0 {
                     for j in instruction.start.1..=instruction.end.1 {
                         // self.lights[i][j] = false;
@@ -95,7 +94,7 @@ impl Grid {
                     }
                 }
             }
-            Operation::TOOGLE => {
+            Operation::Toogle => {
                 for i in instruction.start.0..=instruction.end.0 {
                     for j in instruction.start.1..=instruction.end.1 {
                         // self.lights[i][j] = !self.lights[i][j];
@@ -109,7 +108,7 @@ impl Grid {
 
 fn main() {
     let input = std::fs::read_to_string("./day6_input.txt").expect("input file should present");
-    let instructions: Vec<Instruction> = input.lines().map(|line| line.parse()).flatten().collect();
+    let instructions: Vec<Instruction> = input.lines().flat_map(|line| line.parse()).collect();
 
     let mut grid = Grid::new();
     instructions

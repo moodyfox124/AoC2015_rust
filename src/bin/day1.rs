@@ -13,7 +13,7 @@ fn main() -> Result<()> {
             ')' => floor -=1,
             _ => return,
         };
-        if is_basement_character_found == false && floor == -1 {
+        if !is_basement_character_found && floor == -1 {
             basement_enter_character_position = Some(index + 1);
             is_basement_character_found = true;
         }
@@ -21,5 +21,5 @@ fn main() -> Result<()> {
 
     println!("Santa will end up on floor {}", floor);
     println!("Santa went in the basement after instruction in position {}", basement_enter_character_position.unwrap());
-    return Ok(());
+    Ok(())
 }
